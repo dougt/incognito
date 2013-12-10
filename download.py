@@ -22,9 +22,7 @@ username = password = None
 def download(url):
     global username
     if not username:
-        username = raw_input('LDAP Email: [pbengtsson@mozilla.com]')
-        #if not username:
-        #    username = 'pbengtsson@mozilla.com'
+        username = raw_input('LDAP Email: ')
     global password
     if not password:
         password = getpass('Password: ')
@@ -34,14 +32,6 @@ def download(url):
     assert r.status_code == 200, r.status_code
     return r
 
-def find_emails(html):
-    regex = re.compile('#search/(\w+@(mozilla\.com|mozillafoundation\.org))')
-    point = html.find('People who need to set their manager')
-    emails = [x[0] for x in regex.findall(html)]
-    for email in emails:
-        p = html.find(email)
-        if p < point:
-            yield email
 
 def find_people(html):
     doc = PyQuery(html)
@@ -54,48 +44,6 @@ def find_people(html):
                 continue
             yield (email, a.text)
 
-    """
-    regex = re.compile('#search/(\w+@(mozilla\.com|mozillafoundation\.org))')
-    point = html.find('People who need to set their manager')
-    emails = [x[0] for x in regex.findall(html)]
-    for email in emails:
-        p = html.find(email)
-        if p < point:
-            yield (email, name)
-    """
-
-
-def histogram(filename):
-    img = Image.open(filename)
-    return ''.join(str(x) for x in img.histogram())
-
-def histograms(emails):
-    for e in emails:
-        print histogram(e+'.jpg')
-
-def cli(emails):
-
-    for email in emails:
-        url = URL.format(email=email)
-        r = download(url)
-        #print r.text
-        assert r.status_code == 200, r.status_code
-        print r.headers['content-type']
-        filename = '%s.jpg' % email
-        with open(filename, 'wb') as f:
-            f.write(r.content)
-
-        print "wrote", filename
-
-"""
-if __name__ == '__main__':
-    import sys
-    if not sys.argv[1:]:
-        print "USAGE: %s some@email.com [other@email.com] ..." % __file__
-        sys.exit(1)
-    histograms(sys.argv[1:])
-    cli(sys.argv[1:])
-"""
 
 def run():
     dest = 'download'
