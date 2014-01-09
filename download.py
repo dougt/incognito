@@ -1,9 +1,12 @@
+#!/usr/bin/env python
+
 import json
 import stat
 import time
 import os
 import codecs
 import re
+import urllib
 from getpass import getpass
 
 from pyquery import PyQuery
@@ -15,10 +18,10 @@ URL = 'https://phonebook.mozilla.org//pic.php?mail={email}'
 EXCEPTIONS = (
     'jabbatest@mozilla.com',
     'mtvreceptionist@mozilla.com',
+    'avdg@mozilla.com',
 )
 username = password = None
 
-#url = '#search/mitchell@mozilla.com'
 
 def download(url):
     global username
@@ -78,7 +81,7 @@ def run():
             count += 1
             time.sleep(0.5)
 
-            if count > 200:
+            if count > 400:
                 print "Break early"
                 break
         size = os.stat(jpg_filename)[stat.ST_SIZE]
@@ -90,7 +93,14 @@ def run():
 
 
     report_html = open('report_template.html').read()
-    names = ['<li><a href="mailto:%s">%s</a></li>' % (x[0], x[1]) for x in missing]
+    tmpl = (
+        '<li><a class="phonebookurl" href="%s">%s</a> '
+        '(<a class="email" href="mailto:%s">%s</a>)</li>'
+    )
+    def phonebookurl(name):
+        return 'https://phonebook.mozilla.org/#search/%s' % urllib.quote(name)
+
+    names = [tmpl % (phonebookurl(x[1]), x[1], x[0], x[0]) for x in missing]
     report_html = report_html.replace('<ul>', '<ul>' + '\n'.join(names))
     with codecs.open('report.html', 'w', 'utf-8') as f:
         f.write(report_html)
