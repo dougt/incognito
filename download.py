@@ -14,6 +14,7 @@ MOZLDAP = 'http://localhost:8000/employee/?mail={email}'
 URL = 'https://phonebook.mozilla.org//pic.php?mail={email}'
 EXCEPTIONS = (
     'jabbatest@mozilla.com',
+    'mtvreceptionist@mozilla.com',
 )
 username = password = None
 
